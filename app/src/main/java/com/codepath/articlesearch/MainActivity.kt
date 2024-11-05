@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.codepath.articlesearch.databinding.ActivityMainBinding
 import com.codepath.asynchttpclient.AsyncHttpClient
-import com.codepath.asynchttpclient.BuildConfig
+import com.codepath.articlesearch.BuildConfig
 import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler
 import kotlinx.serialization.json.Json
 import okhttp3.Headers
@@ -25,6 +25,7 @@ private val ARTICLE_SEARCH_URL =
     "https://api.nytimes.com/svc/search/v2/articlesearch.json?api-key=${BuildConfig.API_KEY}"
 
 class MainActivity : AppCompatActivity() {
+    private val articles = mutableListOf<Article>()
     private lateinit var articlesRecyclerView: RecyclerView
     private lateinit var binding: ActivityMainBinding
 
@@ -37,6 +38,8 @@ class MainActivity : AppCompatActivity() {
 
         articlesRecyclerView = findViewById(R.id.articles)
         // TODO: Set up ArticleAdapter with articles
+        val articleAdapter = ArticleAdapter(this, articles)
+        articlesRecyclerView.adapter = articleAdapter
 
         articlesRecyclerView.layoutManager = LinearLayoutManager(this).also {
             val dividerItemDecoration = DividerItemDecoration(this, it.orientation)
@@ -58,12 +61,22 @@ class MainActivity : AppCompatActivity() {
                 Log.i(TAG, "Successfully fetched articles: $json")
                 try {
                     // TODO: Create the parsedJSON
+                    val parsedJson = createJson().decodeFromString(
+                        SearchNewsResponse.serializer(),
+                        json.jsonObject.toString()
+                    )
 
                     // TODO: Do something with the returned json (contains article information)
 
-                    // TODO: Save the articles and reload the screen
 
-                } catch (e: JSONException) {
+                    // TODO: Save the articles and reload the screen
+                    parsedJson.response?.docs?.let { list ->
+                        articles.addAll(list)
+                        articleAdapter.notifyDataSetChanged()
+                    }
+                }
+
+                catch (e: JSONException) {
                     Log.e(TAG, "Exception: $e")
                 }
             }

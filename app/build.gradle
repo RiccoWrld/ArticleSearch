@@ -20,10 +20,7 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-
-        buildConfigField("String", "API_KEY", apikeyProperties['API_KEY'])
-
-        buildConfigField("String", "API_KEY", "\"Test\"")
+        buildConfigField "String", "API_KEY", "\"${apikeyProperties['API_KEY']}\""
     }
 
     buildTypes {
